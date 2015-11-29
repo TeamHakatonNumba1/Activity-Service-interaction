@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -30,26 +36,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
 
     private boolean mIsBound = false;
-
-    /**
-     * Handles incoming messages from Service.
-     */
-    class IncomingMessageHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d(LOGTAG, "handleMessage");
-            switch (msg.what) {
-                case BackgroundService.MSG_POST_NEW_DATA:
-                    // Get serializable news from service.
-                    Serializable data = msg.getData().getSerializable("data");
-                    // Manage serializable object.
-                    updateNewsUI(data);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +64,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      * to automatically bind to it.
      */
     private void autobind() {
-        if (BackgroundService.isRunnign()) {
-            doBindService();
+        if (!BackgroundService.isRunnign()) {
+            Intent intent = new Intent(this, BackgroundService.class);
+            startService(intent);
         }
+        doBindService();
     }
 
     /**
@@ -111,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * Sends request to update news and launches view updating from Service.
+     * Send request to update news and launch view updating from Service.
      */
     private void requestNews() {
         if (mIsBound && mServiceMessenger != null) {
@@ -126,10 +114,21 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * Updates news list with serializable data.
-     * @param data The serializable data which we need to turn into news list and present in view.
+     * Deserialize news from the service.
+     * @param data The serializable data which we need to turn into news list.
+     * @return News list from the server.
      */
-    private void updateNewsUI(Serializable data) {
+    private List<News> deserializeNews(Serializable data) {
+        List<News> newsList = new LinkedList<News>();
+        // TODO! Deserialize data.
+        return newsList;
+    }
+
+    /**
+     * Update news list in the view.
+     * @param news News we need to present in view.
+     */
+    private void updateNewsUI(List<News> news) {
         // TODO! Update UI from serialized data.
     }
 
@@ -173,6 +172,28 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             doUnbindService();
         } catch (Throwable t) {
             Log.e(LOGTAG, "Failed to unbind from the service ", t);
+        }
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handles incoming messages from Service.
+     */
+    class IncomingMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(LOGTAG, "handleMessage");
+            switch (msg.what) {
+                case BackgroundService.MSG_POST_NEW_DATA:
+                    // Get serializable news from service.
+                    Serializable data = msg.getData().getSerializable("data");
+                    // Manage serializable object.
+                    updateNewsUI(deserializeNews(data));
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
     }
 }

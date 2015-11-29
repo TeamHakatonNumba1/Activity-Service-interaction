@@ -18,6 +18,10 @@ public class NewsCollector {
 
     public void refreshNews() {
         // TODO! Add news.
+        News news = new News("11.24.2015", "blank", "reason1", "bounds1");
+        mNewsList.add(news);
+        news = new News("11.24.2015", "blank", "reason2", "bounds2");
+        mNewsList.add(news);
     }
 
     public List<News> getNewsList() {
