@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      * to automatically bind to it.
      */
     private void autobind() {
-        if (!BackgroundService.isRunnign()) {
+        if (!BackgroundService.isRunning()) {
             Intent intent = new Intent(this, BackgroundService.class);
             startService(intent);
         }
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             switch (msg.what) {
                 case BackgroundService.MSG_POST_NEW_DATA:
                     // Get serializable news from service.
-                    Bundle bundle = msg.getData().getBundle("value");
+                    Bundle bundle = msg.getData();
                     // Manage serializable object.
                     updateNewsUI(unpackNews(bundle));
                     break;

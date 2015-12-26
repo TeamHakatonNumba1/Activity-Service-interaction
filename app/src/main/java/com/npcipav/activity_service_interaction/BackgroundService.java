@@ -53,7 +53,7 @@ public class BackgroundService extends Service {
         mIsRunning = true;
     }
 
-    public static boolean isRunnign() {
+    public static boolean isRunning() {
         return mIsRunning;
     }
 
